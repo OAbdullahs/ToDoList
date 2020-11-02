@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">To Do List</string>
+    <string name="lets_get_started">Let\'s Get Started</string>
+    <string name="to">To</string>
+    <string name="dos">Do</string>
+    <string name="list">List</string>
+    <string name="all_day">ALL DAY</string>
+</resources>

@@ -20,6 +20,8 @@ class ToDoListMainViewModel(private val app:Application): AndroidViewModel(app){
         getSelectedMonth = currentMonthSelected.month
         getSelectedYear = currentMonthSelected.year
     }
+    private val tasksRepository = TasksRepository.get()
+    val tasksLiveData = tasksRepository.getTasks()
 
 
 

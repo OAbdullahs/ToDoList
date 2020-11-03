@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/horizontal_recyclerview"
     android:layout_width="70dp"
-    android:layout_height="match_parent"
+    android:layout_height="70dp"
     android:background="@drawable/back_next_style"
     android:orientation="vertical">
 
@@ -22,11 +22,17 @@
 
     <TextView
         android:id="@+id/month_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/avalibale_tasks"
+        android:gravity="center"
         android:text="TextView"
         android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/day_name" />

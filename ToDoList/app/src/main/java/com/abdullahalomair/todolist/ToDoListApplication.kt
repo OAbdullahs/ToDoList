@@ -10,6 +10,6 @@ class ToDoListApplication: Application(){
 
     override fun onCreate() {
         super.onCreate()
-
+        TasksRepository.initialize(this)
     }
 }

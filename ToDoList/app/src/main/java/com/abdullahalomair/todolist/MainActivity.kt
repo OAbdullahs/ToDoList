@@ -2,10 +2,17 @@ package com.abdullahalomair.todolist
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.WindowManager
+import android.widget.TextView
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.*
 
 class MainActivity : AppCompatActivity(), CallBacks {
-
+    private lateinit var currentMonth: TextView
+    private lateinit var currentTime: TextView
     override fun onStart() {
         super.onStart()
         try {
@@ -26,12 +33,18 @@ class MainActivity : AppCompatActivity(), CallBacks {
 
 
         if (currentFragment == null){
-        val fragment = LetsGetStartedFragment.newInstance()
+            val toDoListMain = ToDoListMainFragment.newInstance()
             supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment_manager,fragment)
-                .commit()
+                    .beginTransaction()
+                    .replace(R.id.fragment_manager,toDoListMain)
+                    .commit()
         }
+
+        currentMonth = findViewById(R.id.current_month)
+        currentMonth.text = LocalDate.now().month.toString()
+        currentTime = findViewById(R.id.current_time)
+        //Update time every minute
+        updateTimeFrequently()
     }
 
     override fun callBacks(fragmentName: String) {
@@ -43,6 +56,33 @@ class MainActivity : AppCompatActivity(), CallBacks {
                     .replace(R.id.fragment_manager,toDoListMain)
                     .commit()
             }
+            "AddNewTaskFragment" ->{
+                val toDoListMain = AddNewTaskFragment.newInstance()
+                supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.fragment_manager,toDoListMain)
+                        .addToBackStack(null)
+                        .commit()
+            }
         }
+    }
+
+    override fun passIDCallBack(id: UUID) {
+        val updateFragment = UpdateTaskDialogFragment.newInstance(id)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_manager,updateFragment)
+            .commit()
+
+    }
+
+    private fun updateTimeFrequently(){
+        val timeHandler: Handler = Handler(Looper.getMainLooper())
+        timeHandler.postDelayed(object : Runnable {
+            override fun run() {
+                currentTime.text = SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(Date())
+                timeHandler.postDelayed(this, 1000)
+            }
+        }, 10)
     }
 }

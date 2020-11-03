@@ -5,4 +5,10 @@
     <string name="dos">Do</string>
     <string name="list">List</string>
     <string name="all_day">ALL DAY</string>
+    <string name="add_new_task_fragment">Add new task</string>
+    <string name="enter_task_title">Enter task title</string>
+    <string name="enter_task_description">Enter task description</string>
+    <string name="add_new_task">ADD TASK</string>
+    <string name="task_complete_info">COMPLETED</string>
+    <string name="task_not_complete_info">NOT COMPLETED</string>
 </resources>

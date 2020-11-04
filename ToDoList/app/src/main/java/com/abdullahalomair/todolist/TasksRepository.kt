@@ -35,7 +35,6 @@ class TasksRepository private constructor(context: Context){
     }
     fun getTasks(): LiveData<List<TasksDB>> = tasksDao.getTasks()
     fun getTasks(id: UUID): LiveData<TasksDB?> = tasksDao.getTasks(id)
-    fun getTaskDate(date: Date): LiveData<TasksDB?> = tasksDao.getDate(date)
 
 
     companion object {

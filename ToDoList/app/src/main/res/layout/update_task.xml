@@ -95,6 +95,15 @@
                 app:layout_constraintStart_toStartOf="@+id/green_ball_image"
                 app:layout_constraintTop_toTopOf="@+id/green_ball_image"
                 app:srcCompat="@drawable/done_animation" />
+
+            <CalendarView
+                android:id="@+id/update_date_calender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.AppCompatButton

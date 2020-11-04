@@ -1,5 +1,6 @@
 package com.abdullahalomair.todolist
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import java.util.*
 private const val DIALOG_Time = "DialogTime"
 private const val REQUEST_TIME = 1
 private const val TAG = "AddNewTaskFragment"
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class AddNewTaskFragment: Fragment(), TimePickerFragment.Callbacks{
     private var callbacks: CallBacks? = null
     private lateinit var titleEditView: EditText
@@ -69,6 +71,7 @@ class AddNewTaskFragment: Fragment(), TimePickerFragment.Callbacks{
         return view
 
     }
+    @SuppressLint("SetTextI18n")
     private fun getStartAndEndDate(){
         val timeFormat = "hh:mm a"
         val localDate = LocalDate.now()
@@ -76,9 +79,9 @@ class AddNewTaskFragment: Fragment(), TimePickerFragment.Callbacks{
         startTaskText.text = "$localDate $localDateTime"
 
     }
+    @SuppressLint("SimpleDateFormat")
     private fun calenderDatePicker(){
         calendarView.setOnDateChangeListener{ calendarView, year, months, days  ->
-            Toast.makeText(context,"$year-${months+1}-$days",Toast.LENGTH_SHORT).show()
              val inputFormat =SimpleDateFormat("yyyy-MM-dd")
             val date:Date = inputFormat.parse("$year-${months+1}-$days")
             TimePickerFragment.newInstance(date).apply {

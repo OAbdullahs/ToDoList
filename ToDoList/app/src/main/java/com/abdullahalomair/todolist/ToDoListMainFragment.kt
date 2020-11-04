@@ -38,11 +38,12 @@ class ToDoListMainFragment: Fragment(){
     private lateinit var monthAndYearSelected: TextView
     private lateinit var toDoListMainViewModel: ToDoListMainViewModel
     private lateinit var adapter: DateAdapter
-    private  var adapterExplorer: TaskAdapter = TaskAdapter(emptyList())
+    private  var adapterExplorer: TaskAdapter = TaskAdapter(emptyList(), false)
     private lateinit var nextMonthButton: ImageView
     private lateinit var backMonthButton: ImageView
     private lateinit var addNewTaskButton: ImageButton
     private var tasksDB: List<TasksDB> = emptyList()
+    private lateinit var allTimeText: TextView
 
 
 
@@ -68,19 +69,13 @@ class ToDoListMainFragment: Fragment(){
         nextMonthButton = view.findViewById(R.id.next_month_button)
         backMonthButton = view.findViewById(R.id.back_month_button)
         addNewTaskButton = view.findViewById(R.id.add_to_do_list_button)
+        allTimeText = view.findViewById(R.id.all_day_text)
 
         //go to Add new task fragment
         addNewTaskButton.setOnClickListener {
             callbacks?.callBacks("AddNewTaskFragment")
         }
 
-        //observe the data from the database
-        toDoListMainViewModel.tasksLiveData.observe(
-            viewLifecycleOwner, { data ->
-                tasksDB = data
-                Log.i(TAG, tasksDB.toString())
-            }
-        )
 
 
         //get the generated Dates
@@ -102,7 +97,7 @@ class ToDoListMainFragment: Fragment(){
         //setting the tasks Recycler View
         dateTaskRecyclerView = view.findViewById(R.id.date_task_recycleview)
         dateTaskRecyclerView.layoutManager = LinearLayoutManager(context)
-        dateTaskRecyclerView.adapter = adapterExplorer
+
 
         //getting list of the tasks
         toDoListMainViewModel.tasksLiveData.observe(
@@ -110,6 +105,13 @@ class ToDoListMainFragment: Fragment(){
                 tasksDB = tasks.sortedBy { tasksDB ->
                     tasksDB.date
                 }
+                val allTasksNotDone= tasks.filter { data-> !data.isDone }
+                    .sortedBy {
+                        it.date
+                    }
+                allTimeText.text = activity?.resources?.getText(R.string.all_time)
+                adapterExplorer = TaskAdapter(allTasksNotDone,true)
+                dateTaskRecyclerView.adapter = adapterExplorer
             }
         )
 
@@ -205,7 +207,8 @@ class ToDoListMainFragment: Fragment(){
                         )
                     }
                 }
-                adapterExplorer = TaskAdapter(list)
+                allTimeText.text = activity?.resources?.getText(R.string.all_day)
+                adapterExplorer = TaskAdapter(list, false)
                 dateTaskRecyclerView.adapter = adapterExplorer
             }
             if (dateTime == LocalDate.now()){
@@ -229,8 +232,9 @@ class ToDoListMainFragment: Fragment(){
         val timeFrom: TextView = view.findViewById(R.id.time_from)
         val cardViewHolder: CardView = view.findViewById(R.id.cardView_holder)
         val timeRemainingCountdown:TextView = view.findViewById(R.id.time_remaining)
+        val exactTime:TextView = view.findViewById(R.id.exact_time)
 
-        fun bind(time: String, task: TasksDB){
+        fun bind(time: String, task: TasksDB, isSelected: Boolean){
             val title = task.title
             val desc = task.description
             val id = task.id
@@ -242,6 +246,8 @@ class ToDoListMainFragment: Fragment(){
             taskTitle.text = title
             taskDesc.text = desc
             timeFrom.text = time
+            val format = SimpleDateFormat("yy/MM/dd")
+            exactTime.text = format.format(task.date)
 
             val androidColors = resources.getIntArray(R.array.androidcolors)
             val randomAndroidColor = androidColors[Random().nextInt(androidColors.size)]
@@ -249,20 +255,26 @@ class ToDoListMainFragment: Fragment(){
 
             val currentDate = Date().toInstant()
             val dueDate = task.date
-            val checkLate = currentDate.isAfter(dueDate.toInstant())
-            updateTimeFrequently(task.isDone,dueDate,checkLate)
+
+            updateTimeFrequently(task.isDone,dueDate)
             cardViewHolder.setOnClickListener {
                callbacks?.passIDCallBack(id)
             }
+            if (isSelected){
+                exactTime.setTextColor(activity?.resources?.getColor(R.color.black)!!)
+            }
+            else{
+                exactTime.setTextColor(activity?.resources?.getColor(R.color.white)!!)
+            }
+
 
         }
-        private fun updateTimeFrequently(isDone: Boolean,dueDate:Date, late:Boolean){
-
-
+        private fun updateTimeFrequently(isDone: Boolean,dueDate:Date){
             val timeHandler = Handler(Looper.getMainLooper())
             timeHandler.postDelayed(object : Runnable {
                 @SuppressLint("SetTextI18n")
                 override fun run() {
+                    val late = Date().toInstant().isAfter(dueDate.toInstant())
                     if (!isDone){
                         var duration: Long = if (late) {
                             Date().time - dueDate.time
@@ -295,7 +307,7 @@ class ToDoListMainFragment: Fragment(){
         }
 
     }
-    private inner class TaskAdapter(var tasksDB: List<TasksDB>)
+    private inner class TaskAdapter(var tasksDB: List<TasksDB>, val isSelected :Boolean)
         :RecyclerView.Adapter<TaskHolder>(){
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskHolder {
           val view = layoutInflater.inflate(R.layout.to_do_list_details, parent, false)
@@ -307,8 +319,7 @@ class ToDoListMainFragment: Fragment(){
             calender.time = tasksDB[position].date
             val getTime = calender.get(Calendar.HOUR)
             val getAmPm = if(calender.get(Calendar.AM_PM) == 0) "$getTime am" else "$getTime pm"
-
-        holder.bind(getAmPm, tasksDB[position])
+        holder.bind(getAmPm, tasksDB[position], isSelected)
 
         }
 

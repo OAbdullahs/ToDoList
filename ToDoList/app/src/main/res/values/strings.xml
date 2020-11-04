@@ -5,6 +5,7 @@
     <string name="dos">Do</string>
     <string name="list">List</string>
     <string name="all_day">ALL DAY</string>
+    <string name="all_time">ALL TIMES</string>
     <string name="add_new_task_fragment">Add new task</string>
     <string name="enter_task_title">Enter task title</string>
     <string name="enter_task_description">Enter task description</string>

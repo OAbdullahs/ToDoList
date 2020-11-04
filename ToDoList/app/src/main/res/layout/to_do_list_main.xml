@@ -82,12 +82,12 @@
             app:layout_constraintTop_toBottomOf="@+id/view" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/all_day_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="ALL DAY"
+            android:text="@string/all_day"
             android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/date_explorer_recyclerview" />
@@ -101,8 +101,8 @@
             android:layout_marginEnd="5dp"
             android:background="@color/dark_gray"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/textView4"
-            app:layout_constraintTop_toTopOf="@+id/textView4" />
+            app:layout_constraintStart_toEndOf="@+id/all_day_text"
+            app:layout_constraintTop_toTopOf="@+id/all_day_text" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

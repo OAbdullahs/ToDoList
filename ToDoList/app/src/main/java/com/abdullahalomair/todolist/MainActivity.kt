@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity(), CallBacks {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
            this.setActionBar(null)
         }catch (e: NullPointerException){
-
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {

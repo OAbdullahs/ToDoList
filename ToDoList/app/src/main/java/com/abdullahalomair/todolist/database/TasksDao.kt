@@ -13,13 +13,10 @@ interface TasksDao{
     @Query("SELECT * FROM TasksDB WHERE id=(:id)")
     fun getTasks(id: UUID): LiveData<TasksDB?>
 
-    @Query("SELECT * FROM TASKsDB WHERE date=(:date)")
-    fun getDate(date: Date): LiveData<TasksDB?>
     @Update
     fun updateTask(task: TasksDB)
     @Insert
     fun addTask(task: TasksDB)
-
     @Delete
     fun deleteTask(task: TasksDB)
 }

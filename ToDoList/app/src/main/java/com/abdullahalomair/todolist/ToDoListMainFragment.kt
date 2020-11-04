@@ -1,8 +1,11 @@
 package com.abdullahalomair.todolist
 
+import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
+import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -144,12 +149,10 @@ class ToDoListMainFragment: Fragment(){
         super.onStop()
         callbacks = null
         tasksDB = emptyList()
+        activity?.setActionBar(null)
     }
 
-    override fun onResume() {
-        super.onResume()
 
-    }
 
     private fun setDayAndMonthText(){
         val monthAndYear = "${toDoListMainViewModel.getSelectedMonth} ${toDoListMainViewModel.getSelectedYear}"
@@ -225,6 +228,7 @@ class ToDoListMainFragment: Fragment(){
        val taskDesc: TextView = view.findViewById(R.id.to_do_list_description)
         val timeFrom: TextView = view.findViewById(R.id.time_from)
         val cardViewHolder: CardView = view.findViewById(R.id.cardView_holder)
+        val timeRemainingCountdown:TextView = view.findViewById(R.id.time_remaining)
 
         fun bind(time: String, task: TasksDB){
             val title = task.title
@@ -243,12 +247,52 @@ class ToDoListMainFragment: Fragment(){
             val randomAndroidColor = androidColors[Random().nextInt(androidColors.size)]
             cardViewHolder.setBackgroundColor(randomAndroidColor)
 
+            val currentDate = Date().toInstant()
+            val dueDate = task.date
+            val checkLate = currentDate.isAfter(dueDate.toInstant())
+            updateTimeFrequently(task.isDone,dueDate,checkLate)
             cardViewHolder.setOnClickListener {
                callbacks?.passIDCallBack(id)
             }
 
         }
+        private fun updateTimeFrequently(isDone: Boolean,dueDate:Date, late:Boolean){
 
+
+            val timeHandler = Handler(Looper.getMainLooper())
+            timeHandler.postDelayed(object : Runnable {
+                @SuppressLint("SetTextI18n")
+                override fun run() {
+                    if (!isDone){
+                        var duration: Long = if (late) {
+                            Date().time - dueDate.time
+                        } else {
+                        dueDate.time - Date().time
+                        }
+                        val seconds: Long = ((duration / 1000) % 60)
+                        val minutes: Long = ((duration / (1000 * 60)) % 60)
+                        val hours: Long = ((duration / (1000 * 60 * 60)) % 24)
+                        val days: Long = ((duration / (1000 * 60 * 60 * 24)) % 365)
+                        val stringStatus = if (late) {
+                            "${activity?.getText(R.string.late_time)}"
+                        } else {
+                            "${activity?.getText(R.string.remaining_time)}"
+                        }
+                         val output = stringStatus +
+                            "$days ${activity?.getText(R.string.days)} $hours ${activity?.getText(R.string.hours)} " +
+                            "$minutes ${activity?.getText(R.string.minutes)} $seconds ${activity?.getText(R.string.seconds)}"
+                        timeRemainingCountdown.text = output
+                        if (late) {
+                            timeRemainingCountdown.setTextColor(context?.resources?.getColor(R.color.red)!!)
+                        } else {
+                         timeRemainingCountdown.setTextColor(context?.resources?.getColor(R.color.light_green)!!)
+                        }
+                }
+                else{ timeRemainingCountdown.visibility = View.GONE }
+                    timeHandler.postDelayed(this, 1000)
+                }
+            }, 100)
+        }
 
     }
     private inner class TaskAdapter(var tasksDB: List<TasksDB>)
@@ -261,7 +305,7 @@ class ToDoListMainFragment: Fragment(){
         override fun onBindViewHolder(holder: TaskHolder, position: Int) {
             val calender = Calendar.getInstance()
             calender.time = tasksDB[position].date
-            val getTime = calender.get(Calendar.HOUR_OF_DAY)
+            val getTime = calender.get(Calendar.HOUR)
             val getAmPm = if(calender.get(Calendar.AM_PM) == 0) "$getTime am" else "$getTime pm"
 
         holder.bind(getAmPm, tasksDB[position])

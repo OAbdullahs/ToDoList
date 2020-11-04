@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.WindowManager
 import android.widget.TextView
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.time.LocalDate
 import java.util.*
 
@@ -18,7 +19,8 @@ class MainActivity : AppCompatActivity(), CallBacks {
         try {
         supportActionBar?.hide()
             window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                WindowManager.LayoutParams.FLAG_FULLSCREEN)
+           this.setActionBar(null)
         }catch (e: NullPointerException){
 
         }
@@ -26,8 +28,6 @@ class MainActivity : AppCompatActivity(), CallBacks {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
         val currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_manager)
 
@@ -72,6 +72,7 @@ class MainActivity : AppCompatActivity(), CallBacks {
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_manager,updateFragment)
+            .addToBackStack(null)
             .commit()
 
     }

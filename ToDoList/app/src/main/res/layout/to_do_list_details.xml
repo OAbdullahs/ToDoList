@@ -62,10 +62,22 @@
                 android:text="TextView"
                 android:textColor="@color/white"
                 android:textSize="15sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/creation_date_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/view2" />
+
+            <TextView
+                android:id="@+id/creation_date_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="TextView"
+                android:textColor="@color/dark_gray"
+                android:textStyle="italic"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

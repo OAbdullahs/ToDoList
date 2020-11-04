@@ -22,10 +22,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
-import java.time.DayOfWeek
-import java.time.Duration
-import java.time.Instant
-import java.time.LocalDate
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -42,7 +39,7 @@ class ToDoListMainFragment: Fragment(){
     private lateinit var nextMonthButton: ImageView
     private lateinit var backMonthButton: ImageView
     private lateinit var addNewTaskButton: ImageButton
-    private var tasksDB: List<TasksDB> = emptyList()
+//    private var tasksDB: List<TasksDB> = emptyList()
     private lateinit var allTimeText: TextView
 
 
@@ -78,9 +75,7 @@ class ToDoListMainFragment: Fragment(){
 
 
 
-        //get the generated Dates
-        val dateGenerated = toDoListMainViewModel.currentMonthSelected
-        adapter = DateAdapter(dateGenerated)
+
 
         //Horizontal recycle view settings
         dateExplorerRecyclerView = view.findViewById(R.id.date_explorer_recyclerview)
@@ -89,7 +84,6 @@ class ToDoListMainFragment: Fragment(){
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        dateExplorerRecyclerView.adapter = adapter
         val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL)
         itemDecoration.setDrawable(ContextCompat.getDrawable(context!!, R.drawable.item_divider)!!)
         dateExplorerRecyclerView.addItemDecoration(itemDecoration)
@@ -98,42 +92,47 @@ class ToDoListMainFragment: Fragment(){
         dateTaskRecyclerView = view.findViewById(R.id.date_task_recycleview)
         dateTaskRecyclerView.layoutManager = LinearLayoutManager(context)
 
-
-        //getting list of the tasks
+        //getting list of the tasks and applying passes the tasks from the database
         toDoListMainViewModel.tasksLiveData.observe(
             viewLifecycleOwner, { tasks ->
-                tasksDB = tasks.sortedBy { tasksDB ->
+                val tasksDB = tasks.sortedBy { tasksDB ->
                     tasksDB.date
                 }
-                val allTasksNotDone= tasks.filter { data-> !data.isDone }
+            val dateGenerated = toDoListMainViewModel.currentMonthSelected
+            adapter = DateAdapter(dateGenerated, tasksDB)
+            dateExplorerRecyclerView.adapter = adapter
+
+            val allTasksNotDone= tasks.filter { data-> !data.isDone }
                     .sortedBy {
                         it.date
                     }
                 allTimeText.text = activity?.resources?.getText(R.string.all_time)
                 adapterExplorer = TaskAdapter(allTasksNotDone,true)
                 dateTaskRecyclerView.adapter = adapterExplorer
+            //back and next button
+            nextMonthButton.setOnClickListener {
+                updateUI('+', tasksDB)
+            }
+            backMonthButton.setOnClickListener {
+                updateUI('-',tasksDB)
+            }
             }
         )
 
         //get Year and month selected
         setDayAndMonthText()
 
-        //back and next button
-        nextMonthButton.setOnClickListener {
-        updateUI('+')
-        }
-        backMonthButton.setOnClickListener {
-            updateUI('-')
-        }
+
         return view
     }
-    private fun updateUI(op: Char){
+    //update the ui if clicked on < or >
+    private fun updateUI(op: Char, tasks: List<TasksDB>){
         when(op){
             '+' -> {
                 toDoListMainViewModel.incrementMonth()
                 setDayAndMonthText()
                 val dateGenerated = toDoListMainViewModel.currentMonthSelected
-                adapter = DateAdapter(dateGenerated)
+                adapter = DateAdapter(dateGenerated,tasks)
                 dateExplorerRecyclerView.adapter = adapter
 
             }
@@ -141,7 +140,7 @@ class ToDoListMainFragment: Fragment(){
                 toDoListMainViewModel.decrementMonth()
                 setDayAndMonthText()
                 val dateGenerated = toDoListMainViewModel.currentMonthSelected
-                adapter = DateAdapter(dateGenerated)
+                adapter = DateAdapter(dateGenerated,tasks)
                 dateExplorerRecyclerView.adapter = adapter
             }
         }
@@ -150,17 +149,17 @@ class ToDoListMainFragment: Fragment(){
     override fun onStop() {
         super.onStop()
         callbacks = null
-        tasksDB = emptyList()
         activity?.setActionBar(null)
     }
 
 
-
+    //set The month and year text vale
     private fun setDayAndMonthText(){
         val monthAndYear = "${toDoListMainViewModel.getSelectedMonth} ${toDoListMainViewModel.getSelectedYear}"
         monthAndYearSelected.text = monthAndYear
     }
 
+    //This recycler view is for the first recycler view (The horizontal one) Holder class
     private inner class DateHolder(view: View)
         :RecyclerView.ViewHolder(view){
         val dayName: TextView = itemView.findViewById(R.id.day_name)
@@ -172,7 +171,7 @@ class ToDoListMainFragment: Fragment(){
         }
 
     }
-    private inner class DateAdapter(var dateTime: LocalDate)
+    private inner class DateAdapter(var dateTime: LocalDate,val tasksDB: List<TasksDB>)
         : RecyclerView.Adapter<DateHolder>() {
         private var listOfDatesTasks: List<TasksDB> = emptyList()
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DateHolder {
@@ -184,10 +183,9 @@ class ToDoListMainFragment: Fragment(){
             val monthDate = LocalDate.of(dateTime.year, dateTime.monthValue, position + 1)
             dateTime = monthDate
             for (tasks in tasksDB){
-                val formatDate = SimpleDateFormat("yyyy-MM-dd").format(tasks.date)
-                val nowFormatted  = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                    .format(monthDate)
-                if (formatDate == nowFormatted){
+                val time = tasks.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                val areTheyEqual = monthDate.isEqual(time)
+                if (areTheyEqual){
                     listOfDatesTasks += tasks
                     holder.dayNumber.background = getDrawable(context!!, R.drawable.task_requaired)
                 }
@@ -233,6 +231,7 @@ class ToDoListMainFragment: Fragment(){
         val cardViewHolder: CardView = view.findViewById(R.id.cardView_holder)
         val timeRemainingCountdown:TextView = view.findViewById(R.id.time_remaining)
         val exactTime:TextView = view.findViewById(R.id.exact_time)
+        val creationDate: TextView = view.findViewById(R.id.creation_date_text)
 
         fun bind(time: String, task: TasksDB, isSelected: Boolean){
             val title = task.title
@@ -248,15 +247,17 @@ class ToDoListMainFragment: Fragment(){
             timeFrom.text = time
             val format = SimpleDateFormat("yy/MM/dd")
             exactTime.text = format.format(task.date)
-
+            val createdOn = "${activity?.resources?.getText(R.string.date_created)} ${format.format(task.creationDate)}"
+            creationDate.text = createdOn
             val androidColors = resources.getIntArray(R.array.androidcolors)
             val randomAndroidColor = androidColors[Random().nextInt(androidColors.size)]
             cardViewHolder.setBackgroundColor(randomAndroidColor)
 
-            val currentDate = Date().toInstant()
+            //send due date
             val dueDate = task.date
-
             updateTimeFrequently(task.isDone,dueDate)
+
+            //set Click listener to update the task
             cardViewHolder.setOnClickListener {
                callbacks?.passIDCallBack(id)
             }

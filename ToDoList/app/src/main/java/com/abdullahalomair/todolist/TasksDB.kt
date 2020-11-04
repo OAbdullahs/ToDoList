@@ -9,4 +9,5 @@ data class TasksDB(@PrimaryKey val id: UUID = UUID.randomUUID(),
                    var title:String = "",
                    var description:String = "",
                    var date: Date = Date(),
+                   val creationDate: Date = Date(),
                    var isDone: Boolean = false)

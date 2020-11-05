@@ -10,6 +10,9 @@ interface TasksDao{
     @Query("SELECT * FROM TasksDB")
     fun getTasks(): LiveData<List<TasksDB>>
 
+    @Query("SELECT * FROM TasksDB")
+    fun getTasksBackground(): List<TasksDB>
+
     @Query("SELECT * FROM TasksDB WHERE id=(:id)")
     fun getTasks(id: UUID): LiveData<TasksDB?>
 

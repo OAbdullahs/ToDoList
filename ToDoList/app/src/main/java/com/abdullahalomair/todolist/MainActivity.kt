@@ -1,5 +1,7 @@
 package com.abdullahalomair.todolist
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -84,5 +86,10 @@ class MainActivity : AppCompatActivity(), CallBacks {
                 timeHandler.postDelayed(this, 1000)
             }
         }, 10)
+    }
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, MainActivity::class.java)
+        }
     }
 }

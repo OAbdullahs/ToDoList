@@ -217,6 +217,9 @@ class ToDoListMainFragment: Fragment(){
                     holder.dayNumber.background = getDrawable(context!!, R.drawable.task_requaired)
                     break
                 }
+                else{
+                    holder.dayNumber.background = getDrawable(context!!, R.drawable.avalibale_tasks)
+                }
             }
 
             holder.itemView.setOnClickListener {

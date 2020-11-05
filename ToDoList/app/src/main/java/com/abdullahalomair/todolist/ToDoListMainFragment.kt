@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.telephony.AvailableNetworkInfo
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -44,6 +46,7 @@ class ToDoListMainFragment: Fragment(){
     private lateinit var backMonthButton: ImageView
     private lateinit var addNewTaskButton: ImageButton
     private lateinit var allTimeText: TextView
+    private lateinit var noTasksAvailable : TextView
 
 
 
@@ -70,6 +73,8 @@ class ToDoListMainFragment: Fragment(){
         backMonthButton = view.findViewById(R.id.back_month_button)
         addNewTaskButton = view.findViewById(R.id.add_to_do_list_button)
         allTimeText = view.findViewById(R.id.all_day_text)
+        noTasksAvailable = view.findViewById(R.id.no_data_avilabale)
+
 
         //go to Add new task fragment
         addNewTaskButton.setOnClickListener {
@@ -106,8 +111,14 @@ class ToDoListMainFragment: Fragment(){
                         it.date
                     }
                 allTimeText.text = getString(R.string.all_time)
-                adapterExplorer = TaskAdapter(allTasksNotDone,true)
+            if (allTasksNotDone.isNullOrEmpty()){
+                noTasksAvailable.visibility = View.VISIBLE
+            }else {
+                noTasksAvailable.visibility = View.GONE
+                adapterExplorer = TaskAdapter(allTasksNotDone, true)
                 dateTaskRecyclerView.adapter = adapterExplorer
+            }
+
             //back and next button
             nextMonthButton.setOnClickListener {
                 updateUI('+', tasksDB, allTasksNotDone)
@@ -155,8 +166,15 @@ class ToDoListMainFragment: Fragment(){
                 adapter = DateAdapter(dateGenerated,tasks)
                 dateExplorerRecyclerView.adapter = adapter
                 allTimeText.text = getString(R.string.all_time)
-                adapterExplorer = TaskAdapter(noTasks,true)
-                dateTaskRecyclerView.adapter = adapterExplorer
+                if (noTasks.isNullOrEmpty()){
+                    noTasksAvailable.visibility = View.VISIBLE
+                    dateTaskRecyclerView.visibility = View.GONE
+                }else {
+                    adapterExplorer = TaskAdapter(noTasks, true)
+                    dateTaskRecyclerView.adapter = adapterExplorer
+                    noTasksAvailable.visibility = View.GONE
+                    dateTaskRecyclerView.visibility = View.VISIBLE
+                }
 
             }
             else ->{
@@ -166,8 +184,15 @@ class ToDoListMainFragment: Fragment(){
                 adapter = DateAdapter(dateGenerated,tasks)
                 dateExplorerRecyclerView.adapter = adapter
                 allTimeText.text = getString(R.string.all_time)
-                adapterExplorer = TaskAdapter(noTasks,true)
-                dateTaskRecyclerView.adapter = adapterExplorer
+                if (noTasks.isNullOrEmpty()){
+                    noTasksAvailable.visibility = View.VISIBLE
+                    dateTaskRecyclerView.visibility = View.GONE
+                }else {
+                    adapterExplorer = TaskAdapter(noTasks, true)
+                    dateTaskRecyclerView.adapter = adapterExplorer
+                    dateTaskRecyclerView.visibility = View.VISIBLE
+                    noTasksAvailable.visibility = View.GONE
+                }
             }
         }
     }
@@ -231,15 +256,30 @@ class ToDoListMainFragment: Fragment(){
                     if (formatDate == nowFormatted){
                         list += tasks
                     }
+
                 }
-                allTimeText.text = getString(R.string.all_day)
-                adapterExplorer = TaskAdapter(list, false)
-                dateTaskRecyclerView.adapter = adapterExplorer
+                if (list.isNullOrEmpty()){
+                    noTasksAvailable.visibility = View.VISIBLE
+                    dateTaskRecyclerView.visibility = View.GONE
+                }else {
+                    noTasksAvailable.visibility = View.GONE
+                    allTimeText.text = getString(R.string.all_day)
+                    adapterExplorer = TaskAdapter(list, false)
+                    dateTaskRecyclerView.adapter = adapterExplorer
+                    dateTaskRecyclerView.visibility = View.VISIBLE
+                }
             }
+            //Make day bold if it is the same is localDate
             if (dateTime == LocalDate.now()){
                 holder.apply {
                     this.dayName.setTypeface(null, Typeface.BOLD)
                     this.dayNumber.setTypeface(null, Typeface.BOLD)
+                }
+            }
+            else{
+                holder.apply {
+                    this.dayName.setTypeface(null, Typeface.NORMAL)
+                    this.dayNumber.setTypeface(null, Typeface.NORMAL)
                 }
             }
             holder.bind(dateTime.dayOfWeek, position + 1)
@@ -291,10 +331,10 @@ class ToDoListMainFragment: Fragment(){
                callbacks?.passIDCallBack(id)
             }
             if (isSelected){
-                exactTime.setTextColor(activity?.resources?.getColor(R.color.black)!!)
+                exactTime.setTextColor(getColor(context!!,R.color.black))
             }
             else{
-                exactTime.setTextColor(activity?.resources?.getColor(R.color.white)!!)
+                exactTime.setTextColor(getColor(context!!,R.color.white))
             }
 
 
@@ -325,9 +365,9 @@ class ToDoListMainFragment: Fragment(){
                             "$minutes ${activity?.getText(R.string.minutes)} $seconds ${activity?.getText(R.string.seconds)}"
                         timeRemainingCountdown.text = output
                         if (late) {
-                            timeRemainingCountdown.setTextColor(context?.resources?.getColor(R.color.red)!!)
+                            timeRemainingCountdown.setTextColor(getColor(context!!,R.color.red))
                         } else {
-                         timeRemainingCountdown.setTextColor(context?.resources?.getColor(R.color.light_green)!!)
+                         timeRemainingCountdown.setTextColor(getColor(context!!,R.color.light_green))
                         }
                 }
                 else{ timeRemainingCountdown.visibility = View.GONE }

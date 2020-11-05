@@ -104,6 +104,22 @@
             app:layout_constraintStart_toEndOf="@+id/all_day_text"
             app:layout_constraintTop_toTopOf="@+id/all_day_text" />
 
+        <TextView
+            android:id="@+id/no_data_avilabale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/no_tasks_available"
+            android:textColor="@color/dark_gray"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/all_day_text"
+            app:layout_constraintTop_toBottomOf="@+id/view"
+            app:layout_constraintVertical_bias="0.0" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

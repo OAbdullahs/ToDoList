@@ -23,5 +23,6 @@
     <string name="hour_apart">task</string>
     <string name="day_apart_description">Time: </string>
     <string name="notification_channel_name">ToDoList</string>
+    <string name="no_tasks_available">No tasks available</string>
 
 </resources>

@@ -146,15 +146,7 @@ class ToDoListMainFragment: Fragment(){
         return view
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBundle(BUNDLE,outState)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-       this.arguments = savedInstanceState?.getBundle(BUNDLE)
-    }
+ 
 
     //update the ui if clicked on < or >
     private fun updateUI(op: Char, tasks: List<TasksDB>, noTasks:List<TasksDB>){

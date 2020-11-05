@@ -34,6 +34,7 @@ class TasksRepository private constructor(context: Context){
         }
     }
     fun getTasks(): LiveData<List<TasksDB>> = tasksDao.getTasks()
+    fun getTasksBackground(): List<TasksDB> = tasksDao.getTasksBackground().filter{!it.isDone }
     fun getTasks(id: UUID): LiveData<TasksDB?> = tasksDao.getTasks(id)
 
 

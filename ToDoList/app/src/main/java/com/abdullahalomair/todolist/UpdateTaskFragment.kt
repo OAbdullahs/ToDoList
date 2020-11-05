@@ -9,10 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CalendarView
-import android.widget.EditText
-import android.widget.ImageView
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -78,69 +75,71 @@ class UpdateTaskDialogFragment: Fragment(), TimePickerFragment.Callbacks{
         return view
     }
     private fun updateUI(){
-        if (taskObject != null) {
-            titleText.setText(taskObject.title)
-            descEditText.setText(taskObject.description)
-            if (taskObject.isDone) {
-                completeTaskButton.setText(R.string.task_complete_info)
+        titleText.setText(taskObject.title)
+        descEditText.setText(taskObject.description)
+        if (taskObject.isDone) {
+            completeTaskButton.setText(R.string.task_complete_info)
+            completeTaskButton.backgroundTintList = ContextCompat.getColorStateList(context!!,R.color.light_green)
+        }
+        completeTaskButton.setOnClickListener {
+            taskObject.isDone = !taskObject.isDone
+            if (taskObject.isDone){
+                completeTaskButton.text = context?.resources?.getString(R.string.task_complete_info)
                 completeTaskButton.backgroundTintList = ContextCompat.getColorStateList(context!!,R.color.light_green)
-            }
-            completeTaskButton.setOnClickListener {
-                taskObject.isDone = !taskObject.isDone
-                if (taskObject.isDone){
-                    completeTaskButton.text = context?.resources?.getString(R.string.task_complete_info)
-                    completeTaskButton.backgroundTintList = ContextCompat.getColorStateList(context!!,R.color.light_green)
-                    // try to animate success logo
-                    val drawable: Drawable = donAnimationImage.drawable
+                // try to animate success logo
+                val drawable: Drawable = donAnimationImage.drawable
+                try {
+                    donAnimationImage.visibility = View.VISIBLE
+                    greenBallImage.visibility = View.VISIBLE
+                    updateDateCalender.visibility = View.GONE
+                val av1: AnimatedVectorDrawableCompat = drawable as AnimatedVectorDrawableCompat
+                av1.start()
+                displayCalenderAfterAnimation()
+                }catch (e:Exception){
+                    updateDateCalender.visibility = View.VISIBLE
                     try {
-                        donAnimationImage.visibility = View.VISIBLE
-                        greenBallImage.visibility = View.VISIBLE
                         updateDateCalender.visibility = View.GONE
-                    val av1: AnimatedVectorDrawableCompat = drawable as AnimatedVectorDrawableCompat
-                    av1.start()
-                    displayCalenderAfterAnimation()
+                        val av2: AnimatedVectorDrawable = drawable as AnimatedVectorDrawable
+                        av2.start()
+                        displayCalenderAfterAnimation()
                     }catch (e:Exception){
                         updateDateCalender.visibility = View.VISIBLE
-                        try {
-                            updateDateCalender.visibility = View.GONE
-                            val av2: AnimatedVectorDrawable = drawable as AnimatedVectorDrawable
-                            av2.start()
-                            displayCalenderAfterAnimation()
-                        }catch (e:Exception){
-                            updateDateCalender.visibility = View.VISIBLE
-                        }
                     }
                 }
-                else{
-                    greenBallImage.visibility = View.GONE
-                    donAnimationImage.visibility = View.GONE
-                    completeTaskButton.text = context?.resources?.getString(R.string.task_not_complete_info)
-                    completeTaskButton.backgroundTintList = ContextCompat.getColorStateList(context!!,R.color.red)
-                }
             }
-            confirmUpdateButton.setOnClickListener {
-                taskObject.title = titleText.text.toString()
-                taskObject.description = descEditText.text.toString()
-                updateTaskFragmentViewModel.updateTask(taskObject)
-                callbacks?.callBacks("ToDoListMain")
+            else{
+                greenBallImage.visibility = View.GONE
+                donAnimationImage.visibility = View.GONE
+                completeTaskButton.text = context?.resources?.getString(R.string.task_not_complete_info)
+                completeTaskButton.backgroundTintList = ContextCompat.getColorStateList(context!!,R.color.red)
             }
-            deleteTaskButton.setOnClickListener {
-                updateTaskFragmentViewModel.deleteTask(taskObject)
-                callbacks?.callBacks("ToDoListMain")
-            }
-            updateDateCalender.setDate(taskObject.date.time,true,true)
-            updateDateCalender.setOnDateChangeListener { calendarView, year, months, days ->
-                val inputFormat = SimpleDateFormat("yyyy-MM-dd")
-                val date:Date = inputFormat.parse("$year-${months+1}-$days")
-                TimePickerFragment.newInstance(date).apply {
-                    setTargetFragment(this@UpdateTaskDialogFragment, REQUEST_TIME)
-                    show(this@UpdateTaskDialogFragment.requireFragmentManager(), DIALOG_Time)
-                    taskObject.date = date
-                }
+        }
+        confirmUpdateButton.setOnClickListener {
+            taskObject.title = titleText.text.toString()
+            taskObject.description = descEditText.text.toString()
+            updateTaskFragmentViewModel.updateTask(taskObject)
+            Toast.makeText(context,"Task have been updated successfully", Toast.LENGTH_SHORT).show()
+            callbacks?.callBacks("ToDoListMain")
+        }
+        deleteTaskButton.setOnClickListener {
+            Toast.makeText(context,"Task have been deleted successfully",Toast.LENGTH_SHORT).show()
+            updateTaskFragmentViewModel.deleteTask(taskObject)
+            callbacks?.callBacks("ToDoListMain")
+        }
+        updateDateCalender.setDate(taskObject.date.time,true,true)
+        updateDateCalender.setOnDateChangeListener { calendarView, year, months, days ->
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd")
+            val date:Date = inputFormat.parse("$year-${months+1}-$days")
+            TimePickerFragment.newInstance(date).apply {
+                setTargetFragment(this@UpdateTaskDialogFragment, REQUEST_TIME)
+                show(this@UpdateTaskDialogFragment.requireFragmentManager(), DIALOG_Time)
+                taskObject.date = date
             }
         }
     }
-    //hide the photos and display the calender again
+
+
+    //hide the success animation photos and display the calender again
     private fun displayCalenderAfterAnimation(){
         val timeHandler: Handler = Handler(Looper.getMainLooper())
         timeHandler.postDelayed(object : Runnable {
@@ -157,6 +156,7 @@ class UpdateTaskDialogFragment: Fragment(), TimePickerFragment.Callbacks{
         super.onStop()
         callbacks = null
     }
+
     companion object{
         private lateinit var taskId: UUID
         fun newInstance(task: UUID): UpdateTaskDialogFragment {
